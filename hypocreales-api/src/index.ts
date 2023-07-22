@@ -15,15 +15,17 @@ app.get("/", (req, res) => {
   res.send("What are you doing here?");
 });
 
-if (process?.env?.ENVIRONMENT == "production") {
-  exports.handler = serverless(app);
-} else {
-  app.listen(port, () => {
-    return console.log(`Express is listening at http://localhost:${port}`);
-  });
-}
+//if (process?.env?.ENVIRONMENT == "production") {
+
+//} else {
+//  app.listen(port, () => {
+//    return console.log(`Express is listening at http://localhost:${port}`);
+//  });
+//}
 
 (async () => {
   await connect(process?.env?.MONGO ?? "");
   console.log("DB connected");
 })();
+
+export const handler = serverless(app);
