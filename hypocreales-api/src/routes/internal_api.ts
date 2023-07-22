@@ -1,7 +1,9 @@
 import { Router } from "express";
 import axios from "axios";
-import { DataPull, Price } from "../types/prices";
+import { DataPull, PriceDay, Price } from "../types/prices";
 import { MongoPrice } from "../models/prices";
+import { ControllerInfo } from "../types/edge-controllers";
+import { MongoController } from "../models/edge-controllers";
 const router = Router();
 
 router.get("/pull", async (req, res) => {
@@ -27,7 +29,7 @@ router.get("/pull", async (req, res) => {
       });
     });
     const mongoprice = new MongoPrice({
-      date: new Date().setHours(0, 0, 0, 0),
+      _id: { date: new Date().setHours(0, 0, 0, 0) },
       hour_prices: prices,
     });
     await mongoprice.save();
@@ -35,8 +37,31 @@ router.get("/pull", async (req, res) => {
   res.status(200).send("pulled data");
 });
 
-router.get("/start/:mac", (req, res) => {
-    const mac = req.params.mac
+router.get("/start/:mac", async (req, res) => {
+  const mac = req.params.mac;
+  const controller: ControllerInfo | null = await MongoController.findOne({
+    "_id.mac": mac,
+  }).lean();
+  if (!controller) {
+    res.status(400).send("mac not found");
+    return;
+  }
+  const thresh = controller.settings.price_threshold;
+  const day = new Date();
+  const hour = day.getHours();
+  const pricing: PriceDay | null = await MongoPrice.findOne({
+    "_id.date": day.setHours(0, 0, 0, 0),
+  }).lean();
+  if (!pricing) {
+    res.status(500).send("price not found");
+    return;
+  }
+  if (pricing.hour_prices[hour].dkk_kwh < thresh) {
+    res.status(200).send("true");
+    return;
+  }
+  res.status(200).send("false");
+  return;
 });
 
 export default router;
