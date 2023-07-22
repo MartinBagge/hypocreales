@@ -20,7 +20,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ap-south-1
+          aws-region: eu-north-1
 
       - name: Login to Amazon ECR
         id: login-ecr
@@ -31,5 +31,5 @@ jobs:
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         run: |
-          docker build --file hypocreales-api/dockerfile --build-arg MONGO=$MONGO -t $ECR_REGISTRY/hypocreales-api:latest hypocreales-api
-          docker push $ECR_REGISTRY/hypocreales-api:latest
+          docker build --file hypocreales-api/dockerfile --build-arg MONGO=$MONGO -t $ECR_REGISTRY/hypocreales:latest hypocreales-api
+          docker push $ECR_REGISTRY/hypocreales:latest
