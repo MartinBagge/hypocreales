@@ -1,16 +1,15 @@
-FROM node:18-alpine as build
+FROM public.ecr.aws/lambda/nodejs:18 as build
 WORKDIR /app
-COPY package*.json ./
-RUN npm install
 COPY . .
+RUN npm install
 RUN npm run build
 
 FROM public.ecr.aws/lambda/nodejs:18
-WORKDIR /app
+WORKDIR ${LAMBDA_TASK_ROOT}
 COPY --from=build /app/package.json package.json
 COPY --from=build /app/package-lock.json package-lock.json
-COPY --from=build /app/dist dist
+COPY --from=build /app/dist .
 RUN npm install --production
 ENV PORT=5000
 EXPOSE 5000
-CMD ["lambda.handler"]
+CMD ["index.handler"]

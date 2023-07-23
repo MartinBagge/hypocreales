@@ -5,7 +5,7 @@ Resources:
     Properties:
       PackageType: Image
       Events:
-        SimpleApp:
+        hypocrealesAPI:
           Type: Api
           Properties:
             Path: /{proxy+}
