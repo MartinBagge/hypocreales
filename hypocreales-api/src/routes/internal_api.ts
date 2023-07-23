@@ -19,7 +19,7 @@ const router = Router();
 
 router.get("/pull", async (req, res) => {
   try {
-    mongo_connect();
+    await mongo_connect();
     const today = new Date();
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
@@ -52,7 +52,7 @@ router.get("/pull", async (req, res) => {
 });
 
 router.get("/start/:mac", async (req, res) => {
-  mongo_connect();
+  await mongo_connect();
   const mac = req.params.mac;
   const controller: ControllerInfo | null = await MongoController.findOne({
     "_id.mac": mac,
