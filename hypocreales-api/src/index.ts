@@ -24,8 +24,9 @@ app.get("/", (req, res) => {
 //}
 
 (async () => {
-  await connect(process?.env?.MONGO ?? "");
-  console.log("DB connected");
+  await connect(process?.env?.MONGO ?? "").then(() =>
+    console.log("DB connected")
+  );
 })();
 
 export const handler = serverless(app);

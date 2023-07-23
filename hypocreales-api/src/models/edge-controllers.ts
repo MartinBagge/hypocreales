@@ -1,5 +1,4 @@
 import { Schema, model, Types } from "mongoose";
-import { Price, PriceDay } from "../types/prices";
 import { ControllerInfo } from "../types/edge-controllers";
 
 

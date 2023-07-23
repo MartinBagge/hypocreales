@@ -31,5 +31,5 @@ jobs:
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         run: |
-          docker build --file hypocreales-api/dockerfile --build-arg MONGO=$MONGO -t $ECR_REGISTRY/hypocreales:latest hypocreales-api
+          docker build --file hypocreales-api/dockerfile -t $ECR_REGISTRY/hypocreales:latest hypocreales-api
           docker push $ECR_REGISTRY/hypocreales:latest

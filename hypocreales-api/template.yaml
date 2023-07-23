@@ -1,0 +1,16 @@
+Transform: AWS::Serverless-2016-10-31
+Resources:
+  Hypocreales:
+    Type: AWS::Serverless::Function
+    Properties:
+      PackageType: Image
+      Events:
+        SimpleApp:
+          Type: Api
+          Properties:
+            Path: /{proxy+}
+            Method: any
+    Metadata:
+      DockerTag: nodejs18.x-v1
+      DockerContext: .
+      Dockerfile: dockerfile
