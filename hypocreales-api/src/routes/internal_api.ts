@@ -7,7 +7,7 @@ import { MongoController } from "../models/edge-controllers";
 import * as mongoose from "mongoose";
 
 async function mongo_connect() {
-  if (mongoose.connection.readyState == 1) {
+  if (mongoose.connection?.readyState == 1) {
     return;
   }
   await mongoose.connect(process?.env?.MONGO ?? "");
@@ -20,6 +20,11 @@ const router = Router();
 router.get("/pull", async (req, res) => {
   try {
     await mongo_connect();
+  } catch (e: any) {
+    res.status(500).send(`mongo... ${e.message}`);
+    return;
+  }
+  try{
     const today = new Date();
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
@@ -47,36 +52,40 @@ router.get("/pull", async (req, res) => {
     }
     res.status(200).send("pulled data");
   } catch (e: any){
-    res.status(500).send("something went wrong   " + e.message);
+    res.status(500).send(`something went wrong  ${e.message}`);
   }
 });
 
 router.get("/start/:mac", async (req, res) => {
-  await mongo_connect();
-  const mac = req.params.mac;
-  const controller: ControllerInfo | null = await MongoController.findOne({
-    "_id.mac": mac,
-  }).lean();
-  if (!controller) {
-    res.status(400).send("mac not found");
+  try {
+    await mongo_connect();
+    const mac = req.params.mac;
+    const controller: ControllerInfo | null = await MongoController.findOne({
+      "_id.mac": mac,
+    }).lean();
+    if (!controller) {
+      res.status(400).send("mac not found");
+      return;
+    }
+    const thresh = controller.settings.price_threshold;
+    const day = new Date();
+    const hour = day.getHours();
+    const pricing: PriceDay | null = await MongoPrice.findOne({
+      "_id.date": day.setHours(0, 0, 0, 0),
+    }).lean();
+    if (!pricing) {
+      res.status(500).send("price not found");
+      return;
+    }
+    if (pricing.hour_prices[hour].dkk_kwh < thresh) {
+      res.status(200).send("true");
+      return;
+    }
+    res.status(200).send("false");
     return;
+  } catch (e: any) {
+    res.status(500).send("nope not working");
   }
-  const thresh = controller.settings.price_threshold;
-  const day = new Date();
-  const hour = day.getHours();
-  const pricing: PriceDay | null = await MongoPrice.findOne({
-    "_id.date": day.setHours(0, 0, 0, 0),
-  }).lean();
-  if (!pricing) {
-    res.status(500).send("price not found");
-    return;
-  }
-  if (pricing.hour_prices[hour].dkk_kwh < thresh) {
-    res.status(200).send("true");
-    return;
-  }
-  res.status(200).send("false");
-  return;
 });
 
 export default router;

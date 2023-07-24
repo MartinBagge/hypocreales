@@ -6,7 +6,7 @@ beta_features = true
 beta_features = true
 [default.deploy]
 [default.deploy.parameters]
-stack_name = "bootstrap-sam-app"
+stack_name = "hypocreales"
 region = "eu-north-1"
 capabilities = "CAPABILITY_IAM"
 image_repositories = ["Hypocreales=272361327086.dkr.ecr.eu-north-1.amazonaws.com/hypocreales"]

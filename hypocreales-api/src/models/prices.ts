@@ -1,5 +1,5 @@
 import { Schema, model } from "mongoose";
-import { Price, PriceDay } from "../types/prices";
+import { PriceDay } from "../types/prices";
 
 const priceSchema = new Schema<PriceDay>({
   _id: {
@@ -11,4 +11,5 @@ const priceSchema = new Schema<PriceDay>({
     time_end: Date,
   },
 });
+
 export const MongoPrice = model<PriceDay>("Price", priceSchema);
