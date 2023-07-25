@@ -10,7 +10,7 @@ async function mongo_connect() {
   if (mongoose.connection?.readyState == 1) {
     return;
   }
-  await mongoose.connect(process?.env?.MONGO ?? "");
+  await mongoose.connect(process?.env?.MONGO_URL ?? "");
   return;
 }
 
@@ -21,7 +21,9 @@ router.get("/pull", async (req, res) => {
   try {
     await mongo_connect();
   } catch (e: any) {
-    res.status(500).send(`mongo... ${e.message}`);
+    res
+      .status(500)
+      .send(`\n mongo... \n ${e.message}  \n  ${process?.env?.MONGO_URL} \n`);
     return;
   }
   try{
