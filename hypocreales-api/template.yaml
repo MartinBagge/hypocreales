@@ -6,14 +6,14 @@ Resources:
       PackageType: Image
       Events:
         hypocrealesAPI:
-          Type: Api
+          Type: HttpApi
           Properties:
             Path: /{proxy+}
             Method: any
       Environment:
         Variables:
-          api_key:
-          MONGO_URL:
+          api_key: ""
+          MONGO_URL: ""
     Metadata:
       DockerTag: nodejs18.x-v1
       DockerContext: .

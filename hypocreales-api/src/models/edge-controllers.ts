@@ -5,7 +5,7 @@ import { ControllerInfo } from "../types/edge-controllers";
 const controllerSchema = new Schema<ControllerInfo>({
   _id: {
     mac: String,
-    user_id: Types.ObjectId,
+    //user_id: Types.ObjectId,
   },
   settings: {
     price_threshold: Number,

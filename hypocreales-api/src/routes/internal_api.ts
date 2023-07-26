@@ -26,19 +26,18 @@ router.get("/pull", async (req, res) => {
       .send(`\n mongo... \n ${e.message}  \n  ${process?.env?.MONGO_URL} \n`);
     return;
   }
-  try{
+  try {
+    console.log("before price get");
     const today = new Date();
     const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const price = await axios.get(
-      `https://www.elprisenligenu.dk/api/v1/prices/${tomorrow.getFullYear()}/${tomorrow.getMonth() < 10 ? "0" : ""
-      }${tomorrow.getMonth()}-${tomorrow.getDay() < 10 ? "0" : ""
-      }${tomorrow.getDay()}_DK1.json`
-    );
-    console.log("just pulled data");
-    if (price.status == 200) {
+    tomorrow.setDate(today.getDate() + 1);
+    const url = `https://www.elprisenligenu.dk/api/v1/prices/${tomorrow.getFullYear()}/${(tomorrow.getMonth() + 1) < 10 ? "0" : ""
+      }${tomorrow.getMonth() + 1}-${tomorrow.getDate() < 10 ? "0" : ""
+      }${tomorrow.getDate()}_DK1.json`
+    const price = await axios.get(url);
+    if (price.status >= 200 && price.status < 300) {
       const data = price.data as [DataPull];
-      const prices: Price[] = [];
+      let prices: Price[] = [];
       data.forEach((d) => {
         prices.push({
           dkk_kwh: d.DKK_per_kWh,
@@ -46,19 +45,25 @@ router.get("/pull", async (req, res) => {
           time_end: d.time_end,
         });
       });
+      if (!prices) {
+        res.status(500).send(`no data     ${data}`);
+        return;
+      }
+      console.log("saving to mongo");
       const mongoprice = new MongoPrice({
-        _id: { date: new Date().setHours(0, 0, 0, 0) },
+        _id: { date: tomorrow.setHours(0, 0, 0, 0) },
         hour_prices: prices,
       });
       await mongoprice.save();
     }
-    res.status(200).send("pulled data");
+    res.status(200).send(`pulled data`);
   } catch (e: any){
     res.status(500).send(`something went wrong  ${e.message}`);
   }
+  return;
 });
 
-router.get("/start/:mac", async (req, res) => {
+router.get("/activate/hexmac/:mac", async (req, res) => {
   try {
     await mongo_connect();
     const mac = req.params.mac;
@@ -80,14 +85,15 @@ router.get("/start/:mac", async (req, res) => {
       return;
     }
     if (pricing.hour_prices[hour].dkk_kwh < thresh) {
-      res.status(200).send("true");
+      res.status(200).send({ "state": "start" });
       return;
     }
-    res.status(200).send("false");
+    res.status(200).send({"state":"stop"});
     return;
   } catch (e: any) {
     res.status(500).send("nope not working");
   }
+  return;
 });
 
 export default router;
