@@ -1,0 +1,22 @@
+Transform: AWS::Serverless-2016-10-31
+Resources:
+  Hypocreales:
+    Type: AWS::Serverless::Function
+    Properties:
+      PackageType: Image
+      Events:
+        hypocrealesAPI:
+          Type: HttpApi
+          Properties:
+            Path: /{proxy+}
+            Method: any
+      Environment:
+        Variables:
+          api_key: ''
+          MONGO_URL: ''
+      ImageUri: hypocreales:nodejs18.x-v1
+    Metadata:
+      DockerContext: /home/mb/hypocreales/hypocreales/hypocreales-api
+      DockerTag: nodejs18.x-v1
+      Dockerfile: dockerfile
+      SamResourceId: Hypocreales
