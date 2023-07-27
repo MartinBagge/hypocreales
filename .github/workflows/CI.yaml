@@ -18,4 +18,4 @@ jobs:
       # Build inside Docker containers
       - run: sam build -u -s hypocreales-api -t hypocreales-api/template.yaml
       # Prevent prompts and failure when the stack is unchanged
-      - run: sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --stack-name hypocreales -t hypocreales-api/template.yaml
+      - run: sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --config-file hypocreales-api/samconfig.toml -t hypocreales-api/template.yaml
