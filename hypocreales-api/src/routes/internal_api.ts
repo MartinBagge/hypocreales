@@ -74,7 +74,6 @@ router.get("/activate/hexmac/:mac", async (req, res) => {
       res.status(400).send("mac not found");
       return;
     }
-    const thresh = controller.settings.price_threshold;
     const day = new Date();
     const hour = day.getHours();
     const pricing: PriceDay | null = await MongoPrice.findOne({
@@ -84,12 +83,14 @@ router.get("/activate/hexmac/:mac", async (req, res) => {
       res.status(500).send("price not found");
       return;
     }
-    if (pricing.hour_prices[hour].dkk_kwh < thresh) {
-      res.status(200).send({ "state": "start" });
+    if (
+      pricing.hour_prices[hour].dkk_kwh < controller.settings.price_threshold &&
+      !controller.settings.no_start_hours.includes(hour)
+    ) {
+      res.status(200).send({ state: "start" });
       return;
     }
     res.status(200).send({"state":"stop"});
-    return;
   } catch (e: any) {
     res.status(500).send("nope not working");
   }
