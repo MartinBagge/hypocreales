@@ -16,5 +16,5 @@ Resources:
           MONGO_URL: ""
     Metadata:
       DockerTag: nodejs18.x-v1
-      DockerContext: .
-      Dockerfile: dockerfile
+      DockerContext: hypocreales-api
+      Dockerfile: hypocreales-api/dockerfile

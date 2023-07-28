@@ -9,4 +9,4 @@ beta_features = true
 stack_name = "hypocreales"
 region = "eu-north-1"
 capabilities = "CAPABILITY_IAM"
-
+image_repositories = ["Hypocreales=272361327086.dkr.ecr.eu-north-1.amazonaws.com/hypocreales"]

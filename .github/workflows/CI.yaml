@@ -16,6 +16,6 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-north-1
       # Build inside Docker containers
-      - run: sam build -s hypocreales-api -t hypocreales-api/template.yaml
+      - run: sam build
       # Prevent prompts and failure when the stack is unchanged
-      - run: sam deploy --no-confirm-changeset --resolve-image-repos --resolve-s3 --no-fail-on-empty-changeset -t hypocreales-api/template.yaml
+      - run: sam deploy --no-confirm-changeset --no-fail-on-empty-changeset
