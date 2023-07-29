@@ -1,21 +1,22 @@
-import requests
-import os
-import uuid
-#import gpio
-from typing import Optional
+# micropython
+import upip
+upip.install("urequests")
+import urequests
+upip.install("network")
+import network
+import gpio
 
-API_KEY: Optional[str] = os.environ.get("API_KEY")
+#API_KEY: Optional[str] = os.environ.get("API_KEY")
+MAC = hex(network.WLAN().mac())
 
 
 def check_activate() -> None:
-    res = requests.get(
-        f"https://udgaard.hypocreales.dk/activate/hexmac/1234"#{hex(uuid.getnode())}",
+    res = urequests.get(
+        f"https://udgaard.hypocreales.dk/activate/hexmac/{MAC}",
         #headers={"API_KEY": API_KEY if API_KEY else ""},
     )
     if 200 >= res.status_code < 300:
         if res.json()["state"] == "start":
-            #gpio.activate_heater()
-            print("started")
+            gpio.activate_heater()
         else:
-            #gpio.deactivate_heater()
-            print("stopped")
+            gpio.deactivate_heater()

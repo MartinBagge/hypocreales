@@ -1,20 +1,21 @@
-# Raspberry pi
-import RPi.GPIO as GPIO
+# micropython
+import upip
+upip.install("machine")
+import machine
 
 
 HEATER_PIN: int = 18
 FAN_PIN: int = 0
 
-GPIO.setmode(GPIO.BOARD)
-GPIO.setup(FAN_PIN, GPIO.OUT)
-GPIO.setup(HEATER_PIN, GPIO.OUT)
+FAN = machine.Pin(FAN_PIN, machine.Pin.OUT)
+HEATER = machine.Pin(HEATER_PIN, machine.Pin.OUT)
 
 
 def activate_heater() -> None:
-    GPIO.output(HEATER_PIN, GPIO.HIGH)
-    GPIO.output(FAN_PIN, GPIO.HIGH)
+    FAN.value(1)
+    HEATER.value(1)
 
 
 def deactivate_heater() -> None:
-    GPIO.output(HEATER_PIN, GPIO.low)
-    GPIO.output(FAN_PIN, GPIO.low)
+    FAN.value(0)
+    HEATER.value(0)

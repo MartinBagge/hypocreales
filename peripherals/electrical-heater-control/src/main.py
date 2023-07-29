@@ -1,15 +1,21 @@
+import upip
+upip.install("ntptime")
+import ntptime
+upip.install("time")
 import time
 import api
-import datetime
-
 
 def main():
+    ntptime.host = "dk.pool.ntp.org"
+    current_hour = 0
     while True:
+        ntptime.settime()
+        
         api.check_activate()
-        now = datetime.datetime.now()
-        new = datetime.datetime(now.year, now.month, now.day, now.hour + 1, 1)
-        print(now)
-        print(now.hour)
-        time.sleep(5)#(new - now).total_seconds())
+        now = time.localtime()
+        if now[3] > current_hour or (current_hour == 23 and now[3] == 0):
+            api.check_activate()
+            current_hour = now[3]
+        time.sleep(60*5)
 
 main()
