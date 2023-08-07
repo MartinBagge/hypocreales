@@ -77,7 +77,10 @@ router.get("/activate/hexmac/:mac", async (req, res) => {
     const day = new Date();
     const tomorrow = new Date(day);
     tomorrow.setDate(day.getDate() + 1);
-    const hour = day.getHours();
+    const time_res = await axios.get(
+      "http://worldtimeapi.org/api/timezone/Europe/Berlin"
+    );
+    const hour = (time_res.data.datetime.split("T")[1]).split(":")[0]
     const pricing: PriceDay | null = await MongoPrice.findOne({
       "date": { "$gte": day.setHours(0, 0, 0, 0), "$lt": tomorrow.setHours(0, 0, 0, 0) }
     }).lean();
