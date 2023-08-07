@@ -10,7 +10,6 @@ Resources:
           Properties:
             Path: /{proxy+}
             Method: any
-            DefaultRouteSettings
       Environment:
         Variables:
           api_key: ""
