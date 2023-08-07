@@ -13,6 +13,6 @@ export type Price = {
 };
 
 export type PriceDay = {
-  _id: { date: Date };
+  date: Date;
   hour_prices: [Price];
 };

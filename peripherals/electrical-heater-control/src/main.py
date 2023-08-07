@@ -1,7 +1,4 @@
-import upip
-upip.install("ntptime")
 import ntptime
-upip.install("time")
 import time
 import api
 

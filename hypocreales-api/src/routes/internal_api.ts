@@ -30,7 +30,7 @@ router.get("/pull", async (req, res) => {
     console.log("before price get");
     const today = new Date();
     const tomorrow = new Date(today);
-    tomorrow.setDate(today.getDate() + 1);
+    tomorrow.setDate(today.getDate() + 1 );
     const url = `https://www.elprisenligenu.dk/api/v1/prices/${tomorrow.getFullYear()}/${(tomorrow.getMonth() + 1) < 10 ? "0" : ""
       }${tomorrow.getMonth() + 1}-${tomorrow.getDate() < 10 ? "0" : ""
       }${tomorrow.getDate()}_DK1.json`
@@ -51,7 +51,7 @@ router.get("/pull", async (req, res) => {
       }
       console.log("saving to mongo");
       const mongoprice = new MongoPrice({
-        _id: { date: tomorrow.setHours(0, 0, 0, 0) },
+        date: tomorrow.setHours(12, 0, 0, 0),
         hour_prices: prices,
       });
       await mongoprice.save();
@@ -75,9 +75,11 @@ router.get("/activate/hexmac/:mac", async (req, res) => {
       return;
     }
     const day = new Date();
+    const tomorrow = new Date(day);
+    tomorrow.setDate(day.getDate() + 1);
     const hour = day.getHours();
     const pricing: PriceDay | null = await MongoPrice.findOne({
-      "_id.date": day.setHours(0, 0, 0, 0),
+      "date": { "$gte": day.setHours(0, 0, 0, 0), "$lt": tomorrow.setHours(0, 0, 0, 0) }
     }).lean();
     if (!pricing) {
       res.status(500).send("price not found");

@@ -13,4 +13,8 @@ app.get("/", (req, res) => {
   res.status(200).send("What are you doing here?");
 });
 
+if (process?.env?.TEST) {
+  app.listen(50000);
+}
+
 export const handler = serverless(app);

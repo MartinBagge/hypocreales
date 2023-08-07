@@ -1,13 +1,20 @@
 # micropython
-import upip
-upip.install("urequests")
 import urequests
-upip.install("network")
 import network
+import ubinascii
 import gpio
 
 #API_KEY: Optional[str] = os.environ.get("API_KEY")
-MAC = hex(network.WLAN().mac())
+MAC = ubinascii.hexlify(network.WLAN().config('mac'),':').decode()
+
+# WIFI setup
+wlan = network.WLAN(network.STA_IF)
+wlan.active(True)
+
+# Fill in your network name (ssid) and password here:
+ssid = ""
+password = ""
+wlan.connect(ssid, password)
 
 
 def check_activate() -> None:

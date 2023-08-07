@@ -1,6 +1,4 @@
 # micropython
-import upip
-upip.install("machine")
 import machine
 
 
