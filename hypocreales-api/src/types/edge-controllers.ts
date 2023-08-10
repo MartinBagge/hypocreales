@@ -1,10 +1,10 @@
+import { Types } from "mongoose";
+
 export type ControllerInfo = {
-  _id: {
-    mac: string,
-    user_id: string
-  }
+  _id: string; // mac
   settings: {
     price_threshold: number;
     no_start_hours: [number];
   };
+  supplier: Types.ObjectId;
 };

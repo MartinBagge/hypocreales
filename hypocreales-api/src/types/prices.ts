@@ -12,7 +12,16 @@ export type Price = {
   time_end: Date;
 };
 
+export type TransportPrice = {
+  supplier: string;
+  price_update: Date;
+  prices: {
+    summer: [number];
+    winter: [number];
+  };
+};
+
 export type PriceDay = {
-  date: Date;
+  _id: Date;
   hour_prices: [Price];
 };
