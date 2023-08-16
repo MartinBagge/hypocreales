@@ -106,10 +106,10 @@ router.get("/activate/hexmac/:mac", async (req, res) => {
     }
 
     const supplier = await supplier_promise.lean();
-    const tarif = supplier?.prices.summer
-      ? month > 3 && month < 10 // summer is defined to be between april and october - from "vores elnet", may be an idea to move it to db in case it is not the same for every supplier
-      : supplier?.prices.winter;
-
+    let tarif = supplier?.prices.winter;
+    if (month > 3 && month < 10) {
+      tarif = supplier?.prices.summer;
+    } // summer is defined to be between april and october - from "vores elnet", may be an idea to move it to db in case it is not the same for every supplier
     if (!tarif || typeof tarif == "boolean") {
       res.status(500).send("tarif error");
       return;
