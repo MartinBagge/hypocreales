@@ -7,23 +7,15 @@ import gpio
 #API_KEY: Optional[str] = os.environ.get("API_KEY")
 MAC = ubinascii.hexlify(network.WLAN().config('mac'),':').decode()
 
-# WIFI setup
-wlan = network.WLAN(network.STA_IF)
-wlan.active(True)
-
-# Fill in your network name (ssid) and password here:
-ssid = ""
-password = ""
-wlan.connect(ssid, password)
-
-
 def check_activate() -> None:
-    res = urequests.get(
-        f"https://udgaard.hypocreales.dk/activate/hexmac/{MAC}",
-        #headers={"API_KEY": API_KEY if API_KEY else ""},
-    )
-    if 200 >= res.status_code < 300:
+    res = urequests.get("https://udgaard.hypocreales.dk/activate/hexmac/"+MAC)
+    if 200 <= res.status_code < 300:
         if res.json()["state"] == "start":
             gpio.activate_heater()
+            urequests.post("https://udgaard.hypocreales.dk/log/heartbeat", json={"mac": MAC, "status_code": 1, "msg": "heater started"}, headers={'Content-Type':'application/json'})
         else:
             gpio.deactivate_heater()
+            urequests.post("https://udgaard.hypocreales.dk/log/heartbeat", json={"mac": MAC, "status_code": 1, "msg": "heater stopped"}, headers={'Content-Type':'application/json'})
+    else:
+        urequests.post("https://udgaard.hypocreales.dk/log/heartbeat", json={"mac": MAC, "status_code": 0, "msg": "api misbehaved"}, headers={'Content-Type':'application/json'})
+
