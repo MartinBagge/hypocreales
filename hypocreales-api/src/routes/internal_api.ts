@@ -73,7 +73,7 @@ router.get("/activate/hexmac/:mac", async (req, res) => {
     await mongo_connect();
     const mac = req.params.mac;
     const controller: ControllerInfo | null = await MongoController.findOne({
-      _id: mac,
+      "_id.mac": mac,
     }).lean();
     if (!controller) {
       res.status(400).send("mac not found");
