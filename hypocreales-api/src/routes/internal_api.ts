@@ -2,8 +2,11 @@ import { Router } from "express";
 import axios from "axios";
 import { DataPull, PriceDay, Price } from "../types/prices";
 import { MongoPowerPrice } from "../models/power_prices";
-import { ControllerInfo } from "../types/edge-controllers";
-import { MongoController } from "../models/edge-controllers";
+import { ControllerInfo, ControllerLog } from "../types/edge-controllers";
+import {
+  MongoController,
+  MongoControllerLog,
+} from "../models/edge-controllers";
 import { MongoTransportPrice } from "../models/transport_prices";
 import * as mongoose from "mongoose";
 
@@ -123,6 +126,27 @@ router.get("/activate/hexmac/:mac", async (req, res) => {
     res.status(200).send({ state: "stop" });
   } catch (e: any) {
     res.status(500).send("nope not working");
+  }
+  return;
+});
+
+router.post("/log/heartbeat", async (req, res) => {
+  try {
+    await mongo_connect();
+    const data: ControllerLog = req.body;
+    if (!(await MongoController.exists({ "_id.mac": data.mac }))) {
+      res.status(400).send("mac does not exist");
+      return;
+    }
+
+    const log = new MongoControllerLog(data);
+
+    await log.save();
+
+    res.status(200).send("log created");
+  } catch (e: any) {
+    res.status(500).send("nope not working");
+    console.log(e);
   }
   return;
 });

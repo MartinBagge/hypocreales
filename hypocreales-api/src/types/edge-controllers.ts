@@ -8,3 +8,10 @@ export type ControllerInfo = {
   };
   supplier: Types.ObjectId;
 };
+
+export type ControllerLog = {
+  _id?: Types.ObjectId;
+  mac: string;
+  status_code: number;
+  msg: string;
+};
