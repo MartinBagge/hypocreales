@@ -129,7 +129,7 @@ router.get("/activate/hexmac/:mac", async (req, res) => {
     }
     res.status(200).send({ state: "stop" });
   } catch (e: any) {
-    res.status(500).send("nope not working");
+    res.status(500).send(`something went wrong  ${e.message}`);
   }
   return;
 });
