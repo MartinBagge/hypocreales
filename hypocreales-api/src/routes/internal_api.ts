@@ -91,8 +91,8 @@ router.get("/activate/hexmac/:mac", async (req, res) => {
       "http://worldtimeapi.org/api/timezone/Europe/Berlin"
     );
     const datetime = time_res.data.datetime.split("T");
-    const month = datetime[0].split("-")[1];
-    const hour = datetime[1].split(":")[0];
+    const month = parseInt(datetime[0].split("-")[1]);
+    const hour = parseInt(datetime[1].split(":")[0]);
 
     const pricing: PriceDay | null = await MongoPowerPrice.findOne({
       _id: {
@@ -118,9 +118,6 @@ router.get("/activate/hexmac/:mac", async (req, res) => {
       res.status(500).send("tarif error");
       return;
     }
-
-    res.status(200).send(pricing.hour_prices);
-    return;
 
     if (
       (pricing.hour_prices[hour].dkk_kwh + tarif[hour])*1.25 <
