@@ -119,6 +119,9 @@ router.get("/activate/hexmac/:mac", async (req, res) => {
       return;
     }
 
+    res.status(200).send(pricing.hour_prices);
+    return;
+
     if (
       (pricing.hour_prices[hour].dkk_kwh + tarif[hour])*1.25 <
         controller.settings.price_threshold &&
