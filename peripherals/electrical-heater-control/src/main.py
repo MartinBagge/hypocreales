@@ -36,4 +36,3 @@ def main():
 #in case of power outage, let the router start first
 time.sleep(60*5)
 main()
-
