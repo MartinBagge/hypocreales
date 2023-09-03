@@ -2,6 +2,8 @@
 #include <HTTPClient.h>
 #include <ArduinoJson.h>
 
+const int HEATER_PIN = 28;
+
 const char* ssid = "";
 const char* password = "";
 StaticJsonDocument<64> stateDoc;
@@ -38,7 +40,7 @@ void setup_wifi() {
 }
 
 void setup_pins() {
-  pinMode(34, OUTPUT);
+  pinMode(HEATER_PIN, OUTPUT);
 }
 
 void setup_variables() {
@@ -55,12 +57,12 @@ void setup() {
 }
 
 void start_heater() {
-  digitalWrite(34, HIGH);
+  digitalWrite(HEATER_PIN, HIGH);
   //Serial.println("Heater started");
 }
 
 void stop_heater() {
-  digitalWrite(34, LOW);
+  digitalWrite(HEATER_PIN, LOW);
   //Serial.println("Heater stopped");
 }
 
