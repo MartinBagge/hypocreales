@@ -8,6 +8,7 @@ import {
   MongoControllerLog,
 } from "../models/edge-controllers";
 import { MongoTransportPrice } from "../models/transport_prices";
+import { check_price, check_alway_on_hours } from "../utils/activation_checks";
 import * as mongoose from "mongoose";
 
 async function mongo_connect() {
@@ -69,68 +70,48 @@ router.get("/pull", async (req, res) => {
 });
 
 router.get("/activate/hexmac/:mac", async (req, res) => {
-  try {
-    await mongo_connect();
-    const mac = req.params.mac;
-    const controller: ControllerInfo | null = await MongoController.findOne({
-      "_id.mac": mac,
-    }).lean();
-    if (!controller) {
-      res.status(400).send("mac not found");
+  await mongo_connect();
+  const mac = req.params.mac;
+  const controller: ControllerInfo | null = await MongoController.findOne({
+    "_id.mac": mac,
+  }).lean();
+  if (!controller) {
+    res.status(400).send("mac not found");
+    return;
+  }
+  //async as we want this to run while we get prices
+  const supplier_promise = MongoTransportPrice.findOne({
+    _id: controller.supplier,
+  });
+
+  const day = new Date();
+  const tomorrow = new Date(day);
+  tomorrow.setDate(day.getDate() + 1);
+  const time_res = await axios.get(
+    "http://worldtimeapi.org/api/timezone/Europe/Berlin"
+  );
+  const datetime = time_res.data.datetime.split("T");
+  const month = parseInt(datetime[0].split("-")[1]);
+  const hour = parseInt(datetime[1].split(":")[0]);
+
+  await check_alway_on_hours(hour, controller)
+    .then((val: string) => {
+      res.status(200).send({ state: val });
       return;
-    }
-    //async as we want this to run while we get prices
-    const supplier_promise = MongoTransportPrice.findOne({
-      _id: controller.supplier,
+    })
+    .catch(() => {
+      check_price(day, tomorrow, month, hour, controller)
+        .then((val: string) => {
+          res.status(200).send({ state: val });
+          return;
+        })
+        .catch((error: string) => {
+          res.status(500).send({ error });
+          return;
+        });
+      return;
     });
 
-    const day = new Date();
-    const tomorrow = new Date(day);
-    tomorrow.setDate(day.getDate() + 1);
-    const time_res = await axios.get(
-      "http://worldtimeapi.org/api/timezone/Europe/Berlin"
-    );
-    const datetime = time_res.data.datetime.split("T");
-    const month = parseInt(datetime[0].split("-")[1]);
-    const hour = parseInt(datetime[1].split(":")[0]);
-
-    const pricing: PriceDay | null = await MongoPowerPrice.findOne({
-      _id: {
-        $gte: day.setHours(0, 0, 0, 0),
-        $lt: tomorrow.setHours(0, 0, 0, 0),
-      },
-    }).lean();
-    if (!pricing) {
-      res.status(500).send("price not found");
-      return;
-    }
-
-    const supplier = await supplier_promise.lean();
-    if (!supplier) {
-      res.status(500).send("supplier not found");
-      return;
-    }
-    let tarif = supplier.prices.winter;
-    if (month > 3 && month < 10) {
-      tarif = supplier.prices.summer;
-    } // summer is defined to be between april and october - from "vores elnet", may be an idea to move it to db in case it is not the same for every supplier
-    if (!tarif || typeof tarif == "boolean") {
-      res.status(500).send("tarif error");
-      return;
-    }
-
-    if (
-      (pricing.hour_prices[hour].dkk_kwh + tarif[hour])*1.25 <
-        controller.settings.price_threshold &&
-      !controller.settings.no_start_hours.includes(hour)
-    ) {
-      res.status(200).send({ state: "start" });
-      return;
-    }
-    res.status(200).send({ state: "stop" });
-  } catch (e: any) {
-    res.status(500).send(`something went wrong  ${e.message}`);
-  }
   return;
 });
 

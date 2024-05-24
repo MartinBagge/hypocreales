@@ -5,6 +5,7 @@ export type ControllerInfo = {
   settings: {
     price_threshold: number;
     no_start_hours: [number];
+    always_on_hours: [number];
   };
   supplier: Types.ObjectId;
 };
