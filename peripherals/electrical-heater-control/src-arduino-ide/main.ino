@@ -3,6 +3,7 @@
 #include <ArduinoJson.h>
 
 const int HEATER_PIN = 28;
+const int PUMP_PIN = 27;
 
 const char* ssid = "";
 const char* password = "";
@@ -34,7 +35,8 @@ void setup_wifi() {
   WiFi.begin(ssid, password);
   // Print periods on monitor while establishing connection
   while (WiFi.status() != WL_CONNECTED) {
-    delay(1000);
+    WiFi.disconnect();
+    delay(10000);
   }
   //Serial.println("wifi connected");
 }
@@ -56,14 +58,22 @@ void setup() {
   setup_variables();
 }
 
-void start_heater() {
+void heater_start() {
   digitalWrite(HEATER_PIN, HIGH);
   //Serial.println("Heater started");
 }
 
-void stop_heater() {
+void heater_stop() {
   digitalWrite(HEATER_PIN, LOW);
   //Serial.println("Heater stopped");
+}
+
+void pump_start() {
+  digitalWrite(PUMP_PIN, HIGH);
+}
+
+void pump_stop() {
+  digitalWrite(PUMP_PIN, LOW);
 }
 
 void send_log(char* msg, int code) {
@@ -105,7 +115,7 @@ void api_check() {
       int httpCode = https.GET();
       // httpCode will be negative on error
       while(httpCode <= 0 && retry_counter <= 5){
-        delay(1000);
+        delay(10000);
         //Serial.println("Retrying api");
         char num[4];
         itoa(httpCode, num, 10);
@@ -129,15 +139,27 @@ void api_check() {
             strcat(msg, num);
             send_log(msg, 0);
           }
-          const char* state = stateDoc["state"];  // "start"
-          if (strcmp(state, "start") == 0) {
-            start_heater();
+          const char* state_heater = stateDoc["heater"];
+          const char *state_pump = stateDoc["pump"];
+
+          if (strcmp(state_heater, "start") == 0) {
+            heater_start();
             char msg[] = "heater started";
             send_log(msg, 1);
+            if (strcmp(state_pump, "start") == 0) {
+              pump_start();
+              char msg[] = "pump started";
+              send_log(msg, 1);
+            }
+            else {
+              pump_stop();
+              char msg[] = "pump stopped";
+              send_log(msg, 1);
+            }
             https.end();
             return;
           } else {
-            stop_heater();
+            heater_stop();
             char msg[] = "heater stopped";
             send_log(msg, 1);
             https.end();

@@ -96,13 +96,13 @@ router.get("/activate/hexmac/:mac", async (req, res) => {
 
   await check_alway_on_hours(hour, controller)
     .then((val: string) => {
-      res.status(200).send({ state: val });
+      res.status(200).send({ heater: val });
       return;
     })
     .catch(() => {
       check_price(day, tomorrow, month, hour, controller)
         .then((val: string) => {
-          res.status(200).send({ state: val });
+          res.status(200).send({ heater: val });
           return;
         })
         .catch((error: string) => {
